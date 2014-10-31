@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/J0-nas/drawGraph"
 	"math"
 	"sort"
 )
@@ -40,6 +41,35 @@ func main() {
 		{4, 9},
 	}
 
+	convexHull := buildConvexHull(points)
+	fmt.Println(convexHull)
+
+	i, gc := drawGraph.NewImage(200, 200)
+	gc.MoveTo(10.0, 10.0)
+	gc.LineTo(100.0, 10.0)
+	gc.Stroke()
+	drawGraph.SaveImage("TestPath", i)
+
+	//TEST
+	/*alpha := math.Pi/2 - 0.01
+	a = math.Tan(alpha)
+	c = currentPoint.Y + a*currentPoint.X
+
+	fmt.Println(a)
+	fmt.Println()
+	fmt.Println(c)
+	fmt.Println()
+
+	for _, p := range points {
+		fmt.Println(distance(a, c, p))
+
+		if checkPoint(a, c, p) {
+			fmt.Println(p)
+		}
+	}*/
+}
+
+func buildConvexHull(points []Point) []Point {
 	fmt.Println(points)
 
 	sort.Sort(ByX(points))
@@ -60,24 +90,6 @@ func main() {
 		originPoint,
 	}
 	atOrigin := false
-
-	//TEST
-	/*alpha := math.Pi/2 - 0.01
-	a = math.Tan(alpha)
-	c = currentPoint.Y + a*currentPoint.X
-
-	fmt.Println(a)
-	fmt.Println()
-	fmt.Println(c)
-	fmt.Println()
-
-	for _, p := range points {
-		fmt.Println(distance(a, c, p))
-
-		if checkPoint(a, c, p) {
-			fmt.Println(p)
-		}
-	}*/
 
 	for alpha := math.Pi/2 - 0.1; alpha > -math.Pi/2+0.1; alpha -= 0.02 {
 		a = -math.Tan(alpha)
@@ -106,7 +118,7 @@ func main() {
 	}
 
 	fmt.Println(results)
-
+	return results
 }
 
 func distance(a, c float64, p Point) float64 {

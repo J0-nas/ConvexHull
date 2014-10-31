@@ -44,12 +44,12 @@ func main() {
 	convexHull := buildConvexHull(points)
 	fmt.Println(convexHull)
 
-	i, gc := drawGraph.NewImage(200, 200)
-	gc.MoveTo(10.0, 10.0)
-	gc.LineTo(100.0, 10.0)
-	gc.Stroke()
-	drawGraph.SaveImage("TestPath", i)
+	d := drawGraph.Instance()
+	d.NewImage(200, 200)
+	d.AddPoint(50.0, 100.0)
+	d.SaveImage("test")
 
+	//d.PrintSomething()
 	//TEST
 	/*alpha := math.Pi/2 - 0.01
 	a = math.Tan(alpha)

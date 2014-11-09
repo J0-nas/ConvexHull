@@ -10,6 +10,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -38,18 +39,56 @@ func (a ByX) Less(i, j int) bool {
 }
 
 func main() {
+	var wG sync.WaitGroup
+	workChannel := make(chan int)
+
+	m := make(map[int]int)
+	for worker := 0; worker < 100; worker++ {
+		// Increment the WaitGroup counter.
+		wG.Add(1)
+		go func(wChannel <-chan int, id int, waitGrp *sync.WaitGroup) {
+			defer waitGrp.Done()
+			completedWork := 0
+			for i := range wChannel {
+				//fmt.Println("Worker ", id, " working on ", i)
+				convex("convexHull_" + strconv.Itoa(i))
+				completedWork++
+			}
+			m[id] = completedWork
+			//fmt.Println("Done.")
+		}(workChannel, worker, &wG)
+	}
+
+	wG.Add(1)
+	go func(wChannel chan int, wGrp *sync.WaitGroup) {
+		defer wGrp.Done()
+		for work := 0; work < 10000; work++ {
+			wChannel <- work
+		}
+		//fmt.Println("Create work done.")
+		close(workChannel)
+	}(workChannel, &wG)
+
+	wG.Wait()
+
+	var res []Point
+	for key, value := range m {
+		res = append(res, Point{float64(key), float64(value)})
+	}
+	sort.Sort(ByX(res))
+	for _, r := range res {
+		fmt.Println("Key: ", int(r.X), " computed: ", int(r.Y), " convex hulls")
+	}
+
+}
+
+func convex(name string) {
 	height := 1000.0
 	width := 1000.0
 
-	for i := 0; i <= 10000; i++ {
-		convex("test_"+strconv.Itoa(i), height, width)
-	}
-}
-
-func convex(name string, height, width float64) {
 	var points []Point
 
-	seed := time.Now().UTC().UnixNano() % 128
+	seed := time.Now().UTC().UnixNano()
 	rand.Seed(seed)
 	//fmt.Println("seed: ", seed)
 
